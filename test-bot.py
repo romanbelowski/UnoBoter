@@ -1,38 +1,98 @@
 import logging
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
 import config
+
+# Імпорт всіх хендлерів
+from handlers.auth_handlers import start_command, help_command, role_callback
 from handlers.profile_handlers import profile_command, set_teacher_status, set_student_status
-import handlers.auth_handlers as auth_handlers
-import handlers.booking_handlers as booking_handlers
-import handlers.reminder_handlers as reminder_handlers
-import asyncio
+from handlers.booking_handlers import (
+    book_command,
+    cancel_command,
+    reschedule_command
+)
+from handlers.teacher_handlers import (
+    setschedule_command,
+    viewbookings_command
+)
+from handlers.student_handlers import mycourses_command
+from handlers.reminder_handlers import (
+    set_reminder_command,
+    toggle_reminders_command
+)
 
-logging.basicConfig(level=logging.INFO)
+from database import init_db
 
+# Налаштування логування
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Ініціалізація бота і диспетчера
 bot = Bot(token=config.TOKEN)
-dp = Dispatcher()
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage)
 
-# Регистрация обработчиков команд
-dp.message.register(auth_handlers.start_command, Command("start"))
-dp.message.register(auth_handlers.help_command, Command("help"))
-dp.message.register(profile_command, Command("profile"))
-dp.message.register(set_teacher_status, Command("set_teacher"))
-dp.message.register(set_student_status, Command("set_student"))
 
-dp.message.register(booking_handlers.schedule_command, Command("schedule"))
-dp.message.register(booking_handlers.book_command, Command("book"))
-dp.message.register(booking_handlers.cancel_command, Command("cancel"))
-dp.message.register(booking_handlers.reschedule_command, Command("reschedule"))
+# Реєстрація хендлерів
+def register_handlers():
+    # Аутентифікація
+    dp.message.register(start_command, Command("start"))
+    dp.message.register(help_command, Command("help"))
+    dp.callback_query.register(role_callback, F.data.startswith("role_"))
 
-dp.message.register(reminder_handlers.set_reminder_command, Command("setreminder"))
+    # Профіль
+    dp.message.register(profile_command, Command("profile"))
+    dp.message.register(set_teacher_status, Command("setteacher"))
+    dp.message.register(set_student_status, Command("setstudent"))
+
+    # Бронювання
+    dp.message.register(book_command, Command("book"))
+    dp.message.register(cancel_command, Command("cancel"))
+    dp.message.register(reschedule_command, Command("reschedule"))
+
+    # Команди викладача
+    dp.message.register(setschedule_command, Command("setschedule"))
+    dp.message.register(viewbookings_command, Command("viewbookings"))
+
+    # Команди учня
+    dp.message.register(mycourses_command, Command("mycourses"))
+
+    # Нагадування
+    dp.message.register(set_reminder_command, Command("setreminder"))
+    dp.message.register(toggle_reminders_command, Command("togglereminders"))
+
 
 async def main():
-    logging.info("Бот запускається...")
+    logger.info("Запуск бота...")
     try:
+        # Ініціалізація бази даних
+        init_db()
+        logger.info("База даних ініціалізована")
+
+        # Реєстрація хендлерів
+        register_handlers()
+        logger.info("Хендлери зареєстровані")
+
+        # Запуск бота
+        logger.info("Бот запущений")
         await dp.start_polling(bot)
     except Exception as e:
-        logging.error(f"Помилка при запуску бота: {e}")
+        logger.error(f"Помилка при запуску бота: {e}")
+    finally:
+        await bot.session.close()
+        logger.info("Бот зупинений")
+
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        import asyncio
+
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинений через переривання")
+    except Exception as e:
+        logger.error(f"Критична помилка: {e}")
