@@ -1,8 +1,11 @@
-from aiogram import types
-from aiogram.filters import Command
 import logging
-from database import SessionLocal, get_user, get_user_bookings, get_available_lessons
+import re
+from datetime import datetime, timedelta
+
+from aiogram import types
 from aiogram.enums import ParseMode
+
+from database import SessionLocal, get_user, get_user_bookings, get_user_schedule, User, Lesson
 
 
 async def start_command(message: types.Message):
@@ -42,32 +45,46 @@ async def help_command(message: types.Message):
 
 
 async def schedule_command(message: types.Message):
+    command_parts = message.text.split()
+
+    if len(command_parts) != 2 or not command_parts[1].startswith('@'):
+        await message.answer("Невірний формат команди. Використовуйте: /schedule @username")
+        return
+
+    username = command_parts[1][1:]  # Видаляємо '@'
+
     with SessionLocal() as db:
         try:
-            user = get_user(db, message.from_user.id)
+            # Шукаємо викладача за username
+            user = db.query(User).filter(User.username == username, User.is_teacher == True).first()
+
             if not user:
-                await message.answer("Спочатку потрібно зареєструватися. Використовуйте /start")
+                await message.answer(f"Викладача з username @{username} не знайдено або він не є викладачем.")
                 return
 
-            available_lessons = get_available_lessons(db)
-            if available_lessons:
-                response = "Доступні уроки:\n"
-                for lesson in available_lessons:
-                    teacher = lesson.teacher
-                    response += (
-                        f"ID: {lesson.id} | "
-                        f"Дата: {lesson.date_time.strftime('%Y-%m-%d %H:%M')} | "
-                        f"Викладач: {teacher.full_name}\n"
-                    )
-            else:
-                response = "На даний момент немає доступних уроків."
+            # Отримуємо розклад викладача
+            start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = start_date + timedelta(days=7)  # На наступний тиждень
+            lessons = get_user_schedule(db, user.id, start_date, end_date)
+
+            if not lessons:
+                await message.answer(f"У викладача @{username} немає уроків на найближчий тиждень.")
+                return
+
+            # Формуємо таблицю уроків
+            response = f"Розклад викладача @{username}:\n\n"
+            response += "ID Уроку | Дата та Час | Статус\n"
+            response += "-" * 40 + "\n"
+
+            for lesson in lessons:
+                status = "Заброньований" if lesson.is_booked else "Вільний"
+                response += f"{lesson.id:<9} | {lesson.date_time.strftime('%Y-%m-%d %H:%M'):<14} | {status}\n"
 
             await message.answer(response)
-            logging.info("Виконана команда /schedule")
-        except Exception as e:
-            logging.error(f"Помилка при отриманні розкладу: {e}")
-            await message.answer("Сталася помилка при отриманні розкладу.")
 
+        except Exception as e:
+            logging.error(f"Помилка в команді /schedule: {e}")
+            await message.answer("Сталася помилка при обробці запиту.")
 
 async def mycourses_command(message: types.Message):
     with SessionLocal() as db:

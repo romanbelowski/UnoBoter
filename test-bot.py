@@ -2,7 +2,7 @@ import logging
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
-import config
+
 
 # Імпорт всіх хендлерів
 from handlers.auth_handlers import start_command, help_command, role_callback
@@ -14,9 +14,9 @@ from handlers.booking_handlers import (
 )
 from handlers.teacher_handlers import (
     setschedule_command,
-    viewbookings_command
+    viewbookings_command, check_and_show_schedule, teacher_cancel_command
 )
-from handlers.student_handlers import mycourses_command
+from handlers.student_handlers import mycourses_command, schedule_command
 from handlers.reminder_handlers import (
     set_reminder_command,
     toggle_reminders_command
@@ -32,12 +32,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Ініціалізація бота і диспетчера
-bot = Bot(token=config.TOKEN)
+bot = Bot(token="7443278914:AAGunpsq3Ep5Ysq7-fKYRpF6dFgHKcrGYy0")
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
-
-# Реєстрація хендлерів
 def register_handlers():
     # Аутентифікація
     dp.message.register(start_command, Command("start"))
@@ -54,17 +52,19 @@ def register_handlers():
     dp.message.register(cancel_command, Command("cancel"))
     dp.message.register(reschedule_command, Command("reschedule"))
 
-    # Команди викладача
-    dp.message.register(setschedule_command, Command("setschedule"))
-    dp.message.register(viewbookings_command, Command("viewbookings"))
-
     # Команди учня
     dp.message.register(mycourses_command, Command("mycourses"))
+    dp.message.register(schedule_command, Command("schedule"))
 
     # Нагадування
     dp.message.register(set_reminder_command, Command("setreminder"))
     dp.message.register(toggle_reminders_command, Command("togglereminders"))
 
+    # Команди викладача
+    dp.message.register(setschedule_command, Command("setschedule"))
+    dp.message.register(viewbookings_command, Command("viewbookings"))
+    dp.message.register(check_and_show_schedule, Command("showmyschedule"))
+    dp.message.register(teacher_cancel_command, Command("t_cancel"))
 
 async def main():
     logger.info("Запуск бота...")

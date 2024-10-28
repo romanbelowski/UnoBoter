@@ -4,7 +4,6 @@ from database import SessionLocal, get_user, create_user
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode  
 
-
 async def profile_command(message: types.Message):
     user_id = message.from_user.id
     
@@ -21,7 +20,6 @@ async def profile_command(message: types.Message):
         except Exception as e:
             logging.error(f"Помилка в команді /profile: {e}")
             await message.answer("Сталася помилка при отриманні вашого профілю.")
-
 
 async def set_teacher_status(message: types.Message):
     """
@@ -41,7 +39,6 @@ async def set_teacher_status(message: types.Message):
         except Exception as e:
             logging.error(f"Помилка в команді /set_teacher: {e}")
             await message.answer("Сталася помилка при оновленні вашої ролі.")
-
 
 async def set_student_status(message: types.Message):
     """

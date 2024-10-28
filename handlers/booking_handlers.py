@@ -10,7 +10,6 @@ from database import (
 )
 from datetime import datetime
 
-
 async def book_command(message: types.Message):
     try:
         command_parts = message.text.split()
@@ -47,7 +46,6 @@ async def book_command(message: types.Message):
         logging.error(f"Помилка при бронюванні уроку: {e}")
         await message.answer("Сталася помилка при бронюванні уроку.")
 
-
 async def cancel_command(message: types.Message):
     try:
         command_parts = message.text.split()
@@ -82,7 +80,6 @@ async def cancel_command(message: types.Message):
     except Exception as e:
         logging.error(f"Помилка при скасуванні бронювання: {e}")
         await message.answer("Сталася помилка при скасуванні бронювання.")
-
 
 async def reschedule_command(message: types.Message):
     try:

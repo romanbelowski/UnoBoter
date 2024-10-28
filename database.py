@@ -21,7 +21,6 @@ class User(Base):
     bookings = relationship("Booking", back_populates="student")
     lessons = relationship("Lesson", back_populates="teacher")
 
-
 class Lesson(Base):
     __tablename__ = "lessons"  # Виправлено з tablename на __tablename__
 
@@ -68,6 +67,16 @@ def create_user(db, telegram_id: int, username: str, full_name: str, is_teacher:
     db.refresh(db_user)
     return db_user
 
+# Для виводу повного розклада в хендлерах викладачів (я просто буду молитись щоб воно працювало)
+def get_user_schedule(db, teacher_id: int, start_date: datetime, end_date: datetime):
+    """
+    Повертає список уроків викладача на поточний тиждень, включаючи заброньовані та незаброньовані уроки.
+    """
+    return db.query(Lesson).filter(
+        Lesson.teacher_id == teacher_id,
+        Lesson.date_time >= start_date,
+        Lesson.date_time <= end_date
+    ).order_by(Lesson.date_time).all()
 
 # Функції для роботи з уроками
 def create_lesson(db, teacher_id: int, date_time: datetime):
@@ -77,13 +86,11 @@ def create_lesson(db, teacher_id: int, date_time: datetime):
     db.refresh(db_lesson)
     return db_lesson
 
-
 def get_available_lessons(db, teacher_id: int = None):
     query = db.query(Lesson).filter(Lesson.is_booked == False)
     if teacher_id:
         query = query.filter(Lesson.teacher_id == teacher_id)
     return query.all()
-
 
 # Функції для роботи з бронюваннями
 def create_booking(db, lesson_id: int, student_id: int):
@@ -96,17 +103,14 @@ def create_booking(db, lesson_id: int, student_id: int):
     db.refresh(db_booking)
     return db_booking
 
-
 def get_user_bookings(db, user_id: int, is_teacher: bool = False):
     if is_teacher:
         return db.query(Booking).join(Lesson).filter(Lesson.teacher_id == user_id).all()
     return db.query(Booking).filter(Booking.student_id == user_id).all()
 
-
 # Функції для роботи з налаштуваннями нагадувань
 def get_notification_settings(db, user_id: int):
     return db.query(NotificationSetting).filter(NotificationSetting.user_id == user_id).first()
-
 
 def create_notification_settings(db, user_id: int, reminders_on: bool = True):
     db_settings = NotificationSetting(user_id=user_id, reminders_on=reminders_on)
@@ -114,7 +118,6 @@ def create_notification_settings(db, user_id: int, reminders_on: bool = True):
     db.commit()
     db.refresh(db_settings)
     return db_settings
-
 
 def init_db():
     Base.metadata.create_all(bind=engine)

@@ -10,7 +10,6 @@ from aiogram.fsm.state import State, StatesGroup
 class RegistrationStates(StatesGroup):
     choosing_role = State()
 
-
 def get_role_keyboard():
     """Створення клавіатури для вибору ролі"""
     builder = InlineKeyboardBuilder()
@@ -24,7 +23,6 @@ def get_role_keyboard():
     ))
     builder.adjust(1)
     return builder.as_markup()
-
 
 async def start_command(message: types.Message, state: FSMContext):
     """Обробник команди /start"""
@@ -50,7 +48,6 @@ async def start_command(message: types.Message, state: FSMContext):
         except Exception as e:
             logging.error(f"Помилка при обробці команди /start: {e}")
             await message.answer("Сталася помилка при реєстрації. Спробуйте пізніше.")
-
 
 async def role_callback(callback: types.CallbackQuery, state: FSMContext):
     """Обробник вибору ролі через кнопки"""
@@ -88,18 +85,16 @@ async def role_callback(callback: types.CallbackQuery, state: FSMContext):
                 "Сталася помилка при реєстрації. Спробуйте ще раз через /start"
             )
 
-
 def get_teacher_commands():
-    """Повертає список команд для викладача"""
     return (
         "/help - Список доступних команд\n"
         "/profile - Переглянути профіль\n"
         "/setschedule - Додати новий урок\n"
         "/viewbookings - Переглянути заброньовані уроки\n"
-        "/cancel - Скасувати урок\n"
-        "/reschedule - Перенести урок"
+        "/t_cancel - Скасувати урок\n"
+        "/reschedule - Перенести урок\n"
+        "/showmyschedule - Мій розклад\n"
     )
-
 
 def get_student_commands():
     """Повертає список команд для учня"""
@@ -113,7 +108,6 @@ def get_student_commands():
         "/reschedule - Перенести урок\n"
         "/setreminder - Встановити нагадування"
     )
-
 
 async def help_command(message: types.Message):
     """Обробник команди /help"""
