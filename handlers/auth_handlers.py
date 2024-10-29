@@ -98,11 +98,11 @@ def get_student_commands():
     return (
         "/help - Список доступних команд\n"
         "/profile - Переглянути профіль\n"
+        "/my_courses - Мої заброньовані уроки\n"
         "/schedule - Показати доступні уроки\n"
         "/book - Записатися на урок\n"
-        "/mycourses - Мої заброньовані уроки\n"
         "/cancel - Скасувати урок\n"
-        "/setreminder - Встановити нагадування"
+        "/set_reminder - Встановити нагадування"
     )
 
 async def help_command(message: types.Message):

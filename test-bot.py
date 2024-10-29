@@ -36,6 +36,7 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 def register_handlers():
+
     # Аутентифікація
     dp.message.register(start_command, Command("start"))
     dp.message.register(help_command, Command("help"))
@@ -51,11 +52,11 @@ def register_handlers():
     dp.message.register(cancel_command, Command("cancel"))
 
     # Команди учня
-    dp.message.register(mycourses_command, Command("mycourses"))
+    dp.message.register(mycourses_command, Command("my_courses"))
     dp.message.register(schedule_command, Command("schedule"))
 
     # Нагадування
-    dp.message.register(set_reminder_command, Command("setreminder"))
+    dp.message.register(set_reminder_command, Command("set_reminder"))
     dp.message.register(toggle_reminders_command, Command("togglereminders"))
 
     # Команди викладача
