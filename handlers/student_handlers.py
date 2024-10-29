@@ -33,9 +33,10 @@ async def help_command(message: types.Message):
         "/profile - Переглянути профіль\n"
         "/schedule - Показати доступні слоти викладача\n"
         "/book <id_уроку> - Записатися на урок\n"
-        "/mycourses - Показати мої заброньовані уроки\n"
-        "/cancel <id_бронювання> - Скасувати урок\n"
-        "/setreminder <id_бронювання> <час> - Встановити нагадування"
+        "/my_courses - Показати мої заброньовані уроки\n"
+        "/cancel <id_бронювання> - Скасувати урок\n\n"
+        "/set_reminder <id_бронювання> <час> - Встановити нагадування\n"
+        "/toggle_reminders - Налаштувати нагадування\n"
     )
     await message.answer(help_text)
     logging.info("Виконана команда /help")
@@ -108,7 +109,7 @@ async def mycourses_command(message: types.Message):
                 response = "У вас поки немає заброньованих уроків."
 
             await message.answer(response)
-            logging.info("Виконана команда /mycourses")
+            logging.info("Виконана команда /my_courses")
 
         except Exception as e:
             logging.error(f"Помилка при отриманні списку уроків: {e}")

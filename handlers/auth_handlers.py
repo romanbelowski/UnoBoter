@@ -91,18 +91,21 @@ def get_teacher_commands():
         "/set_schedule_slot - Додати новий слот\n"
         "/slot_cancel - Скасувати слот\n"
         "/view_bookings - Переглянути заброньовані уроки\n"
-        "/book_cancel - Скасувати броньований урок\n"
+        "/book_cancel - Скасувати броньований урок\n\n"
+        "/set_reminder <id_бронювання> <час> - Встановити нагадування\n"
+        "/toggle_reminders - Налаштувати нагадування\n"
     )
 
 def get_student_commands():
     return (
         "/help - Список доступних команд\n"
         "/profile - Переглянути профіль\n"
-        "/my_courses - Мої заброньовані уроки\n"
-        "/schedule - Показати доступні уроки\n"
-        "/book - Записатися на урок\n"
-        "/cancel - Скасувати урок\n"
-        "/set_reminder - Встановити нагадування"
+        "/schedule - Показати доступні слоти викладача\n\n"
+        "/book <id_уроку> - Записатися на урок\n"
+        "/my_courses - Показати мої заброньовані уроки\n"
+        "/cancel <id_бронювання> - Скасувати урок\n\n"
+        "/set_reminder <id_бронювання> <час> - Встановити нагадування\n"
+        "/toggle_reminders - Налаштувати нагадування\n"
     )
 
 async def help_command(message: types.Message):

@@ -1,7 +1,7 @@
 import logging
 from database import SessionLocal, get_user, create_lesson, get_user_bookings, get_user_schedule, Lesson, Booking
 from aiogram.fsm.context import FSMContext
-from aiogram import types  # Використовуємо F для фільтрації тексту
+from aiogram import types
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -184,7 +184,7 @@ async def book_cancel_command(message: types.Message):
     try:
         command_parts = message.text.split()
         if len(command_parts) != 2:
-            await message.answer("Будь ласка, вкажіть ID бронювання у форматі: /cancel <id_бронювання>")
+            await message.answer("Будь ласка, вкажіть ID бронювання у форматі: /book_cancel <id_бронювання>")
             return
 
         booking_id = int(command_parts[1])

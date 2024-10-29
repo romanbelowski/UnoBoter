@@ -3,8 +3,6 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 
-
-# Імпорт всіх хендлерів
 from handlers.auth_handlers import start_command, help_command, role_callback
 from handlers.profile_handlers import profile_command, set_teacher_status, set_student_status
 from handlers.student_handlers import (
@@ -36,7 +34,6 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 def register_handlers():
-
     # Аутентифікація
     dp.message.register(start_command, Command("start"))
     dp.message.register(help_command, Command("help"))
@@ -57,7 +54,7 @@ def register_handlers():
 
     # Нагадування
     dp.message.register(set_reminder_command, Command("set_reminder"))
-    dp.message.register(toggle_reminders_command, Command("togglereminders"))
+    dp.message.register(toggle_reminders_command, Command("toggle_reminders"))
 
     # Команди викладача
     dp.message.register(setschedule_command, Command("set_schedule_slot"))
@@ -85,7 +82,6 @@ async def main():
     finally:
         await bot.session.close()
         logger.info("Бот зупинений")
-
 
 if __name__ == '__main__':
     try:

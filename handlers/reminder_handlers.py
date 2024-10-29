@@ -7,7 +7,7 @@ async def set_reminder_command(message: types.Message):
     try:
         command_parts = message.text.split()
         if len(command_parts) != 3:
-            await message.answer("Формат: /setreminder <id_бронювання> <години_до_уроку>")
+            await message.answer("Формат: /set_reminder <id_бронювання> <години_до_уроку>")
             return
 
         booking_id = int(command_parts[1])
