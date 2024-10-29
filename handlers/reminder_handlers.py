@@ -1,8 +1,7 @@
 from aiogram import types
 import logging
-from database import SessionLocal, get_user, create_notification_settings, get_notification_settings
+from database import SessionLocal, get_user, create_notification_settings, get_notification_settings, Booking
 from datetime import datetime, timedelta
-
 
 async def set_reminder_command(message: types.Message):
     try:
@@ -49,7 +48,6 @@ async def set_reminder_command(message: types.Message):
     except Exception as e:
         logging.error(f"Помилка при встановленні нагадування: {e}")
         await message.answer("Сталася помилка при встановленні нагадування.")
-
 
 async def toggle_reminders_command(message: types.Message):
     user_id = message.from_user.id

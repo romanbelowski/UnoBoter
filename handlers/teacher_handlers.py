@@ -1,5 +1,5 @@
 import logging
-from database import SessionLocal, get_user, create_lesson, get_user_bookings, get_user_schedule, Lesson
+from database import SessionLocal, get_user, create_lesson, get_user_bookings, get_user_schedule, Lesson, Booking
 from aiogram.fsm.context import FSMContext
 from aiogram import types  # Використовуємо F для фільтрації тексту
 from datetime import datetime, timedelta
@@ -10,7 +10,7 @@ async def setschedule_command(message: types.Message):
     try:
         command_parts = message.text.split()
         if len(command_parts) != 3:
-            await message.answer("Формат: /setschedule <дата> <час>")
+            await message.answer("Формат: /set_schedule_slot <дата> <час>")
             return
 
         # Отримання дати та часу від користувача
@@ -105,8 +105,13 @@ async def check_and_show_schedule(message: types.Message):
                 slot_id = lesson.id
                 date = lesson.date_time.strftime('%Y-%m-%d')
                 time = lesson.date_time.strftime('%H:%M')
-                booking_status = "Заброньований" if lesson.is_booked else "Доступний"
-                student_name = lesson.student.full_name if lesson.is_booked else "-"
+                booking_status = "Забр." if lesson.is_booked else "Вільн."
+
+                # Перевірка наявності бронювання і студента
+                if lesson.booking:
+                    student_name = lesson.booking.student.full_name
+                else:
+                    student_name = "-"
 
                 rows.append(f"{slot_id:<10} | {date:<12} | {time:<6} | {booking_status:<12} | {student_name:<20}")
 
@@ -124,7 +129,7 @@ async def check_and_show_schedule(message: types.Message):
             await message.answer("Сталася непередбачувана помилка.")
 
 # Видалення слота для бронювання
-async def teacher_cancel_command(message: types.Message):
+async def slot_cancel_command(message: types.Message):
     # Отримуємо текст повідомлення та розбиваємо його на частини
     args = message.text.split()
 
@@ -174,3 +179,38 @@ async def teacher_cancel_command(message: types.Message):
         except Exception as e:
             logging.error(f"Невідома помилка: {e}")
             await message.answer("Сталася невідома помилка. Спробуйте пізніше.")
+
+async def book_cancel_command(message: types.Message):
+    try:
+        command_parts = message.text.split()
+        if len(command_parts) != 2:
+            await message.answer("Будь ласка, вкажіть ID бронювання у форматі: /cancel <id_бронювання>")
+            return
+
+        booking_id = int(command_parts[1])
+        user_id = message.from_user.id
+
+        with SessionLocal() as db:
+            user = get_user(db, user_id)
+            if not user:
+                await message.answer("Спочатку потрібно зареєструватися.")
+                return
+
+            booking = db.query(Booking).filter(Booking.id == booking_id).first()
+            if not booking or (not user.is_teacher and booking.student_id != user.id):
+                await message.answer("Бронювання не знайдено або у вас немає прав для його скасування.")
+                return
+
+            booking.status = "cancelled"
+            booking.lesson.is_booked = False
+            db.commit()
+
+            await message.answer(f"Бронювання #{booking_id} скасовано.")
+            logging.info(f"Користувач {user_id} скасував бронювання {booking_id}")
+
+    except ValueError:
+        await message.answer("Некоректний формат ID бронювання.")
+        logging.warning("Помилка формату команди /cancel")
+    except Exception as e:
+        logging.error(f"Помилка при скасуванні бронювання: {e}")
+        await message.answer("Сталася помилка при скасуванні бронювання.")

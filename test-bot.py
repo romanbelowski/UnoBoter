@@ -7,14 +7,13 @@ from aiogram.fsm.storage.memory import MemoryStorage
 # Імпорт всіх хендлерів
 from handlers.auth_handlers import start_command, help_command, role_callback
 from handlers.profile_handlers import profile_command, set_teacher_status, set_student_status
-from handlers.booking_handlers import (
+from handlers.student_handlers import (
     book_command,
-    cancel_command,
-    reschedule_command
+    cancel_command
 )
 from handlers.teacher_handlers import (
     setschedule_command,
-    viewbookings_command, check_and_show_schedule, teacher_cancel_command
+    viewbookings_command, check_and_show_schedule, slot_cancel_command, book_cancel_command
 )
 from handlers.student_handlers import mycourses_command, schedule_command
 from handlers.reminder_handlers import (
@@ -50,7 +49,6 @@ def register_handlers():
     # Бронювання
     dp.message.register(book_command, Command("book"))
     dp.message.register(cancel_command, Command("cancel"))
-    dp.message.register(reschedule_command, Command("reschedule"))
 
     # Команди учня
     dp.message.register(mycourses_command, Command("mycourses"))
@@ -61,10 +59,11 @@ def register_handlers():
     dp.message.register(toggle_reminders_command, Command("togglereminders"))
 
     # Команди викладача
-    dp.message.register(setschedule_command, Command("setschedule"))
-    dp.message.register(viewbookings_command, Command("viewbookings"))
-    dp.message.register(check_and_show_schedule, Command("showmyschedule"))
-    dp.message.register(teacher_cancel_command, Command("t_cancel"))
+    dp.message.register(setschedule_command, Command("set_schedule_slot"))
+    dp.message.register(viewbookings_command, Command("view_bookings"))
+    dp.message.register(check_and_show_schedule, Command("show_my_schedule"))
+    dp.message.register(slot_cancel_command, Command("slot_cancel"))
+    dp.message.register(book_cancel_command, Command("book_cancel"))
 
 async def main():
     logger.info("Запуск бота...")

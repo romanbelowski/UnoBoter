@@ -6,7 +6,6 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-
 class RegistrationStates(StatesGroup):
     choosing_role = State()
 
@@ -25,7 +24,6 @@ def get_role_keyboard():
     return builder.as_markup()
 
 async def start_command(message: types.Message, state: FSMContext):
-    """Обробник команди /start"""
     user_id = message.from_user.id
 
     with SessionLocal() as db:
@@ -89,15 +87,14 @@ def get_teacher_commands():
     return (
         "/help - Список доступних команд\n"
         "/profile - Переглянути профіль\n"
-        "/setschedule - Додати новий урок\n"
-        "/viewbookings - Переглянути заброньовані уроки\n"
-        "/t_cancel - Скасувати урок\n"
-        "/reschedule - Перенести урок\n"
-        "/showmyschedule - Мій розклад\n"
+        "/show_my_schedule - Мій розклад\n\n"
+        "/set_schedule_slot - Додати новий слот\n"
+        "/slot_cancel - Скасувати слот\n"
+        "/view_bookings - Переглянути заброньовані уроки\n"
+        "/book_cancel - Скасувати броньований урок\n"
     )
 
 def get_student_commands():
-    """Повертає список команд для учня"""
     return (
         "/help - Список доступних команд\n"
         "/profile - Переглянути профіль\n"
@@ -105,7 +102,6 @@ def get_student_commands():
         "/book - Записатися на урок\n"
         "/mycourses - Мої заброньовані уроки\n"
         "/cancel - Скасувати урок\n"
-        "/reschedule - Перенести урок\n"
         "/setreminder - Встановити нагадування"
     )
 
